@@ -9,7 +9,7 @@ from dotenv import load_dotenv  # NEW
 
 load_dotenv()  # NEW: Load environment variables
 
-app = Flask(__name__, template_folder='template1')
+app = Flask(__name__)
 
 # --- NEW: Database Setup ---
 def init_db():
