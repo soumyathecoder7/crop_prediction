@@ -3,7 +3,11 @@ import numpy as np
 import pandas as pd
 import pickle
 import requests
-import sqlite3  # --- NEW: Required for database
+import sqlite3
+import os
+from dotenv import load_dotenv  # NEW
+
+load_dotenv()  # NEW: Load environment variables
 
 app = Flask(__name__, template_folder='template1')
 
@@ -18,7 +22,6 @@ def init_db():
                       prediction TEXT, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)''')
         conn.commit()
 
-# Initialize DB when app starts
 init_db()
 
 # --- 1. Load Models ---
@@ -41,7 +44,6 @@ def home():
 @app.route("/predict", methods=["POST"])
 def predict():
     try:
-        # Get values
         N = float(request.form['Nitrogen'])
         P = float(request.form['Phosphorus'])
         K = float(request.form['Potassium'])
@@ -52,11 +54,9 @@ def predict():
 
         features = [N, P, K, temp, hum, ph, rain]
         
-        # Make Prediction
         scaled = scaler.transform(np.array([features]))
         prediction = model.predict(scaled)[0]
 
-        # --- NEW: Save to Database ---
         with sqlite3.connect('crop_data.db') as conn:
             c = conn.cursor()
             c.execute("INSERT INTO reports (nitrogen, phosphorus, potassium, temperature, humidity, ph, rainfall, prediction) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
@@ -67,7 +67,6 @@ def predict():
     except Exception as e:
         return render_template("crop.html", prediction_text=f"Error: {str(e)}")
 
-# --- NEW: Report Route (Fixes 'Not Found' Error) ---
 @app.route("/report")
 def report():
     try:
@@ -99,7 +98,7 @@ def chat_api():
 
     API_URL = "https://api.groq.com/openai/v1/chat/completions"
     MODEL = "llama-3.1-8b-instant"
-    API_KEY = "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" 
+    API_KEY = os.getenv("GROQ_API_KEY")  # UPDATED (Secure)
 
     headers = {
         "Authorization": f"Bearer {API_KEY}",
@@ -116,6 +115,7 @@ def chat_api():
 
     try:
         response = requests.post(API_URL, json=payload, headers=headers)
+
         if response.status_code != 200:
             return jsonify({"reply": f"API Error: {response.status_code}"}), 500
         
