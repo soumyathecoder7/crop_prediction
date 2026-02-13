@@ -99,6 +99,7 @@ def chat_api():
     API_URL = "https://api.groq.com/openai/v1/chat/completions"
     MODEL = "llama-3.1-8b-instant"
     API_KEY = os.getenv("GROQ_API_KEY")  # UPDATED (Secure)
+    print("API KEY VALUE:", API_KEY)
 
     headers = {
         "Authorization": f"Bearer {API_KEY}",
