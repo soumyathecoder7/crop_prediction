@@ -5,9 +5,9 @@ import pickle
 import requests
 import sqlite3
 import os
-from dotenv import load_dotenv  # NEW
+#from dotenv import load_dotenv  # NEW
 
-load_dotenv()  # NEW: Load environment variables
+#load_dotenv()  # NEW: Load environment variables
 
 app = Flask(__name__,template_folder='template1')
 
